@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model OrganizationModel {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique
+  description     String
+  category        String
+  country         String
+  state           String
+  city            String
+  adress          String
+  zip             String
+  phone           String
+  website         String
+  backgroundImage String
+  logo            String
+  terms           Boolean
+  qtnTests        Int?
+  specialUsers    UserModel[]
+  departments     DepartmentModel[]
+  chapters        ChapterModel[]
+  tests           TestModel[]
+
+  @@unique([id, name])
+}
+
+model DepartmentModel {
+  id             Int               @id @default(autoincrement())
+  name           String
+  qtnTests       Int?
+  specialUsers   UserModel[]
+  tests          TestModel[]
+  organization   OrganizationModel @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId Int
+}
+
+model UserModel {
+  id           Int                 @id @default(autoincrement())
+  email        String              @unique
+  firstName    String
+  lastName     String
+  name         String
+  password     String
+  avatar       MediaFileModel?
+  active       Boolean             @default(false)
+  role         Roles               @default(ADMIN)
+  ChapterModel ChapterModel[]
+  TestModel    TestModel[]
+  Organization OrganizationModel[]
+  department   DepartmentModel?    @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+  testSesions  TestSessionModel[]
+  avatarId     Int?
+
+  @@unique([id])
+}
+
+model TestSessionModel {
+  id                   Int                    @id @default(autoincrement())
+  test                 TestModel              @relation(fields: [testId], references: [id])
+  testId               Int
+  user                 UserModel              @relation(fields: [userId], references: [id])
+  userId               Int
+  registrationDateTime DateTime
+  confirmationRegister DateTime
+  invitationSended     DateTime
+  confirmationInvite   DateTime
+  startTest            DateTime
+  endTest              DateTime
+  status               String
+  quetionSession       QuestionSessionModel[]
+}
+
+model QuestionSessionModel {
+  id            Int              @id @default(autoincrement())
+  startQuestion DateTime
+  endQuestion   DateTime
+  result        Boolean
+  choiceAnswers AnswerModel[]
+  testSession   TestSessionModel @relation(fields: [testSessionId], references: [id])
+  testSessionId Int
+  question      QuestionModel    @relation(fields: [questionId], references: [id])
+  questionId    Int
+}
+
+model ChapterModel {
+  id                 Int               @id @unique @default(autoincrement())
+  chapterTitle       String            @unique
+  chapterDescription String
+  chapterCreators    UserModel         @relation(fields: [userModelId], references: [id])
+  dateOfCreate       String
+  qtnTests           Int
+  tests              TestModel[]
+  userModelId        Int
+  userModelName      String
+  organization       OrganizationModel @relation(fields: [organizationId], references: [id])
+  organizationId     Int
+
+  @@unique([id, chapterTitle])
+}
+
+model TestModel {
+  id                 Int                @id @default(autoincrement())
+  title              String
+  description        String
+  testCreator        UserModel          @relation(fields: [creatorId], references: [id])
+  dateOfCreate       DateTime
+  qtnOfQuestion      Int                @default(0)
+  qtnUsers           Int                @default(0)
+  readyToUse         Boolean
+  questions          QuestionModel[]
+  chapter            ChapterModel       @relation(fields: [chapterId, chapterTitle], references: [id, chapterTitle], onDelete: Cascade)
+  chapterId          Int
+  chapterTitle       String
+  creatorId          Int
+  creatorName        String
+  testMediaFiles     MediaFileModel[]
+  department         DepartmentModel    @relation(fields: [departmentId], references: [id])
+  departmentId       Int
+  testSession        TestSessionModel[]
+  timeLimitPassTest  Boolean            @default(true)
+  timeLimit          Int                @default(0)
+  preRegistration    Boolean            @default(false)
+  startAnyTime       Boolean            @default(false)
+  currentActiveStart DateTime           @default(now())
+  currentActiveEnd   DateTime           @default(now())
+  backToAnyQuestion  Boolean            @default(false)
+  showResultQuestion Boolean            @default(false)
+  showResultTest     Boolean            @default(false)
+  organization       OrganizationModel  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organizationId     Int
+
+  @@unique([id])
+}
+
+model QuestionModel {
+  id                   Int                    @id @default(autoincrement())
+  questionText         String
+  weight               Float                  @default(1)
+  oneAnswer            Boolean                @default(true)
+  answerType           String?
+  explanationText      String?
+  mediaFile            MediaFileModel[]
+  answers              AnswerModel[]
+  TestModel            TestModel              @relation(fields: [testModelId], references: [id], onDelete: Cascade)
+  testModelId          Int
+  questionSessionModel QuestionSessionModel[]
+
+  @@unique([id])
+}
+
+model MediaFileModel {
+  id           Int            @id @default(autoincrement())
+  url          String
+  filename     String
+  size         Int
+  type         String
+  question     QuestionModel? @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId   Int?
+  test         TestModel?     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  testId       Int?
+  answer       AnswerModel?   @relation(fields: [answerId], references: [id])
+  answerId     Int?
+  userAvatar   UserModel?     @relation(fields: [userAvatarId], references: [id])
+  userAvatarId Int?           @unique
+
+  @@unique([id])
+}
+
+model AnswerModel {
+  id               Int                    @id @default(autoincrement())
+  textAnswer       String
+  answerRight      Boolean
+  answerMediaFiles MediaFileModel[]
+  question         QuestionModel          @relation(fields: [questionModelId], references: [id], onDelete: Cascade)
+  questionModelId  Int
+  quesionSessions  QuestionSessionModel[]
+
+  @@unique([id])
+}
+
+enum Roles {
+  ADMIN
+  CREATOR
+  END_USER
+}

@@ -1,0 +1,94 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url = "postgresql://postgres:32steinbek44@localhost:5432/testing_system_db"
+  url      = env("DATABASE_URL")
+  // provider = "sqlite"
+  // url      = "file:./dev.db"
+  // url      = "file:../../../../db/dev.db"
+}
+
+model UserModel {
+  id       Int    @id @default(autoincrement())
+  email    String
+  name     String
+  password String
+}
+
+model ChapterModel {
+  id                 Int    @id @unique @default(autoincrement())
+  chapterTitle       String    
+  chapterDescription String
+  // chapterCreators    creator[]
+  // dateOfCreate       String
+  // qtnTests           Int
+  // tests              test[]
+}
+
+// model test {
+//   id             String        @id @default(uuid())
+//   title          String
+//   description    String
+//   testCreator    creator[]
+//   dateOfCreate   String
+//   qtnOfQuestion  Int
+//   qtnUsers       Int
+//   readyToUse     Boolean
+//   questions      question[]
+//   chapterModel   chapterModel? @relation(fields: [chapterModelId], references: [id])
+//   chapterModelId String?
+//   creatorId      String
+//   questionsId    String
+// }
+
+// model question {
+//   id              String    @id @default(uuid())
+//   titleOfQuestion String
+//   mediaFile       mediaFile @relation(fields: [mediaFileId], references: [id])
+//   answers         answer[]
+//   test            test?     @relation(fields: [testId], references: [id])
+//   testId          String?
+//   mediaFileId     Int
+// }
+
+// model creator {
+//   id             String        @id @default(uuid())
+//   creatorName    String
+//   chapterModel   chapterModel? @relation(fields: [chapterModelId], references: [id])
+//   chapterModelId String?
+//   test           test?         @relation(fields: [testId], references: [id])
+//   testId         String?
+// }
+
+// model mediaFile {
+//   id        Int        @id @default(autoincrement())
+//   blob      blob       @relation(fields: [blobId], references: [id])
+//   url       String
+//   questions question[]
+//   blobId    Int
+// }
+
+// model blob {
+//   id                 Int         @id @default(autoincrement())
+//   name               String
+//   size               Int
+//   type               String
+//   lastModified       Int
+//   lastModifiedDate   String
+//   webkitRelativePath String
+//   mediaFile          mediaFile[]
+// }
+
+// model answer {
+//   id          String    @id @default(uuid())
+//   textAnswer  String
+//   answerRight Boolean
+//   questions   question? @relation(fields: [questionsId], references: [id])
+//   questionsId String?
+// }

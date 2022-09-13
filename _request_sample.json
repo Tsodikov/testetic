@@ -1,0 +1,13 @@
+{
+	"chapterTitle": "Marketing",
+	"chapterDescription": "Nath",
+	"chapterCreators": {
+		"email": "tsodikov@gmail.com",
+		"password": "123",
+		"name": "Leo",
+		"jwt": ""
+	},
+	"dateOfCreate": "76576567576",
+	"qtnTests": 0,
+	"tests": []
+}
